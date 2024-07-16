@@ -1,0 +1,27 @@
+name: 'GPT Translate'
+description: 'Markdown translation into any other language powered by ChatGPT'
+inputs:
+  token:
+    description: 'GITHUB_TOKEN or a `repo` scoped Personal Access Token (PAT)'
+    default: ${{ github.token }}
+  apikey:
+    description: 'API Key'
+    required: true
+  provider:
+    description: 'AI Provider'
+    required: false
+    default: 'openai'
+  model:
+    description: 'The language model to use.'
+    required: false
+    default: 'gpt-4o'
+  basePath:
+    description: 'Replace the base path of openai api'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'globe'
+  color: 'green'
