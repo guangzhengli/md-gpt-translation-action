@@ -13,12 +13,10 @@ const baseURL = getInput('baseURL')
 class AI {
   private readonly provider: any
   private readonly model: string
-  private prompt: string
 
   constructor(providerName: string, apiKey: string, baseURL?: string) {
     this.provider = this.createProvider(providerName, apiKey, baseURL)
     this.model = getInput('model', { required: true })
-    this.prompt = getInput('prompt', { required: true })
   }
 
   private createProvider(
@@ -70,10 +68,7 @@ class AI {
     splitter = '\n\n',
   ): Promise<string> {
     const maxToken =
-      (modelTokens[this.model] || minimumTokens) /
-      2
-    this.prompt = this.prompt
-      .replaceAll('{targetFileExt}', targetFileExt)
+      (modelTokens[this.model] || minimumTokens) / 2
 
     let translated = ''
     let chunk = ''

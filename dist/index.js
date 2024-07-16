@@ -46183,11 +46183,9 @@ const baseURL = (0, core_1.getInput)('baseURL');
 class AI {
     provider;
     model;
-    prompt;
     constructor(providerName, apiKey, baseURL) {
         this.provider = this.createProvider(providerName, apiKey, baseURL);
         this.model = (0, core_1.getInput)('model', { required: true });
-        this.prompt = (0, core_1.getInput)('prompt', { required: true });
     }
     createProvider(providerName, apiKey, baseURL) {
         const providerInitializers = {
@@ -46222,10 +46220,7 @@ class AI {
         return response.text;
     }
     async translate(text, targetFileExt, splitter = '\n\n') {
-        const maxToken = (models_1.modelTokens[this.model] || models_1.minimumTokens) /
-            2;
-        this.prompt = this.prompt
-            .replaceAll('{targetFileExt}', targetFileExt);
+        const maxToken = (models_1.modelTokens[this.model] || models_1.minimumTokens) / 2;
         let translated = '';
         let chunk = '';
         (0, core_1.info)(`${new Date().toLocaleString()} Start translating with ${this.model}...`);
