@@ -46596,7 +46596,7 @@ const saveTranslateFiles = async (inputFilePaths, outputFilePaths) => {
 exports.saveTranslateFiles = saveTranslateFiles;
 const translateByCommand = async (inputFilePath, outputFilePath) => {
     await (0, git_1.gitSetConfig)();
-    const branch = await (0, git_1.gitCheckout)();
+    const branch = await (0, git_1.gitCreateBranch)();
     const inputFilePaths = await (0, glob_1.glob)(inputFilePath);
     if (inputFilePaths.length === 0) {
         throw new Error('No input files found.');

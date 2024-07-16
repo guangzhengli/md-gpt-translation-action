@@ -1,7 +1,7 @@
 import { glob } from 'glob'
 import { context } from '@actions/github'
 import { generatePRBody } from './utils'
-import { gitCheckout, gitCommitPush, gitCreatePullRequest, gitPostComment, gitSetConfig } from './git'
+import { gitCheckout, gitCommitPush, gitCreateBranch, gitCreatePullRequest, gitPostComment, gitSetConfig } from './git'
 import { createFile, generateOutputFilePaths, isFileExists } from './file'
 import fs from 'fs/promises'
 import path from 'path'
@@ -39,7 +39,7 @@ export const translateByCommand = async (
   outputFilePath: string,
 ) => {
   await gitSetConfig()
-  const branch = await gitCheckout();
+  const branch = await gitCreateBranch()
 
   const inputFilePaths = await glob(inputFilePath)
   if (inputFilePaths.length === 0) {

@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+#      - name: Build
+#        run: npm ci && npm run build
+
       - name: Run GPT Translate
         # if: contains(github.event.comment.body, '/translate')
         uses: guangzhengli/md-gpt-translation-action@main
