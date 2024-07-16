@@ -31,7 +31,7 @@ const commandValidator = async (
     await postError(`Invalid command`)
   }
 
-  const [, inputFilePath, outputFilePath] = match!
+  const [inputFilePath, outputFilePath] = match!
 
   if (!isValidFileExt(inputFilePath) || !isValidFileExt(outputFilePath)) {
     await postError(`Unsupported file extension. Please use one of the following formats`)
