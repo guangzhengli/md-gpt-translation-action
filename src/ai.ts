@@ -8,15 +8,15 @@ import { SYSTEM_PROMPT } from './prompt'
 
 const apiKey = getInput('apikey', { required: true })
 const provider = getInput('provider', { required: true }) as 'openai' | 'azure'
-const basePath = getInput('basePath')
+const baseURL = getInput('baseURL')
 
 class AI {
   private readonly provider: any
   private readonly model: string
   private prompt: string
 
-  constructor(providerName: string, apiKey: string, basePath?: string) {
-    this.provider = this.createProvider(providerName, apiKey, basePath)
+  constructor(providerName: string, apiKey: string, baseURL?: string) {
+    this.provider = this.createProvider(providerName, apiKey, baseURL)
     this.model = getInput('model', { required: true })
     this.prompt = getInput('prompt', { required: true })
   }
@@ -24,7 +24,7 @@ class AI {
   private createProvider(
     providerName: string,
     apiKey: string,
-    basePath?: string,
+    baseURL?: string,
   ) {
     const providerInitializers = {
       openai: createOpenAI,
@@ -37,8 +37,8 @@ class AI {
     }
 
     const baseOptions = { apiKey }
-    if (basePath) {
-      baseOptions['baseURL'] = basePath
+    if (baseURL) {
+      baseOptions['baseURL'] = baseURL
     }
     return initializer(baseOptions)
   }
@@ -99,5 +99,5 @@ class AI {
   }
 }
 
-const translator = new AI(provider, apiKey, basePath)
+const translator = new AI(provider, apiKey, baseURL)
 export default translator

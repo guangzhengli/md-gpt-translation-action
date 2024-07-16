@@ -1,0 +1,19 @@
+name: Markdown GPT Translation Action
+
+on:
+  issue_comment:
+    types: [ created ]
+
+jobs:
+  gpt_translate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run GPT Translate
+        if: |
+          contains(github.event.comment.body, '/gt')
+        uses: guangzhengli/md-gpt-translation-action@main
+        with:
+          apikey: ${{ secrets.OPENAI_API_KEY }}
+          model: ${{ secrets.MODEL }}
+          baseURL: ${{ secrets.BASE_URL }}
