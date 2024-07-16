@@ -17988,203 +17988,6 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
-/***/ 7901:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-// This file includes code which was modified from https://github.com/openai/gpt-2
-const fs = __nccwpck_require__(7147)
-const path = __nccwpck_require__(1017);
-
-const encoder = JSON.parse(fs.readFileSync(__nccwpck_require__.ab + "encoder.json"));
-const bpe_file = fs.readFileSync(__nccwpck_require__.ab + "vocab.bpe", 'utf-8');
-
-const range = (x, y) => {
-  const res = Array.from(Array(y).keys()).slice(x)
-  return res
-}
-
-const ord = x => {
-  return x.charCodeAt(0)
-}
-
-const chr = x => {
-  return String.fromCharCode(x)
-}
-
-const textEncoder = new TextEncoder("utf-8")
-const encodeStr = str => {
-  return Array.from(textEncoder.encode(str)).map(x => x.toString())
-}
-
-const textDecoder = new TextDecoder("utf-8")
-const decodeStr = arr => {
-  return textDecoder.decode(new Uint8Array(arr));
-}
-
-const dictZip = (x, y) => {
-  const result = {}
-  x.map((_, i) => { result[x[i]] = y[i] })
-  return result
-}
-
-function bytes_to_unicode() {
-  const bs = range(ord('!'), ord('~') + 1).concat(range(ord('¡'), ord('¬') + 1), range(ord('®'), ord('ÿ') + 1))
-
-  let cs = bs.slice()
-  let n = 0
-  for (let b = 0; b < 2 ** 8; b++) {
-    if (!bs.includes(b)) {
-      bs.push(b)
-      cs.push(2 ** 8 + n)
-      n = n + 1
-    }
-  }
-
-  cs = cs.map(x => chr(x))
-
-  const result = {}
-  bs.map((_, i) => { result[bs[i]] = cs[i] })
-  return result
-}
-
-function get_pairs(word) {
-  const pairs = new Set()
-  let prev_char = word[0]
-  for (let i = 1; i < word.length; i++) {
-    const char = word[i]
-    pairs.add([prev_char, char])
-    prev_char = char
-  }
-  return pairs
-}
-
-const pat = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+/gu
-
-const decoder = {}
-Object.keys(encoder).map(x => { decoder[encoder[x]] = x })
-
-const lines = bpe_file.split('\n')
-
-// bpe_merges = [tuple(merge_str.split()) for merge_str in bpe_data.split("\n")[1:-1]]
-const bpe_merges = lines.slice(1, lines.length - 1).map(x => {
-  return x.split(/(\s+)/).filter(function(e) { return e.trim().length > 0 })
-})
-
-const byte_encoder = bytes_to_unicode()
-const byte_decoder = {}
-Object.keys(byte_encoder).map(x => { byte_decoder[byte_encoder[x]] = x })
-
-const bpe_ranks = dictZip(bpe_merges, range(0, bpe_merges.length))
-const cache = new Map;
-
-function bpe(token) {
-  if (cache.has(token)) {
-    return cache.get(token)
-  }``
-
-  let word = token.split('')
-
-  let pairs = get_pairs(word)
-
-  if (!pairs) {
-    return token
-  }
-
-  while (true) {
-    const minPairs = {}
-    Array.from(pairs).map(pair => {
-      const rank = bpe_ranks[pair]
-      minPairs[(isNaN(rank) ? 10e10 : rank)] = pair
-    })
-
-
-
-    const bigram = minPairs[Math.min(...Object.keys(minPairs).map(x => {
-      return parseInt(x)
-    }
-    ))]
-
-    if (!(bigram in bpe_ranks)) {
-      break
-    }
-
-    const first = bigram[0]
-    const second = bigram[1]
-    let new_word = []
-    let i = 0
-
-    while (i < word.length) {
-      const j = word.indexOf(first, i)
-      if (j === -1) {
-        new_word = new_word.concat(word.slice(i))
-        break
-      }
-      new_word = new_word.concat(word.slice(i, j))
-      i = j
-
-      if (word[i] === first && i < word.length - 1 && word[i + 1] === second) {
-        new_word.push(first + second)
-        i = i + 2
-      } else {
-        new_word.push(word[i])
-        i = i + 1
-      }
-    }
-
-    word = new_word
-    if (word.length === 1) {
-      break
-    } else {
-      pairs = get_pairs(word)
-    }
-  }
-
-  word = word.join(' ')
-  cache.set(token, word)
-
-  return word
-}
-
-function encode(text) {
-  let bpe_tokens = []
-  const matches = Array.from(text.matchAll(pat)).map(x => x[0])
-  for (let token of matches) {
-    token = encodeStr(token).map(x => {
-      return byte_encoder[x]
-    }).join('')
-    
-    const new_tokens = bpe(token).split(' ').map(x => encoder[x])
-    bpe_tokens = bpe_tokens.concat(new_tokens)
-  }
-  return bpe_tokens
-}
-
-function decode(tokens) {
-  let text = tokens.map(x => decoder[x]).join('')
-  text = decodeStr(text.split('').map(x => byte_decoder[x]))
-  return text
-}
-
-module.exports = {
-  encode,
-  decode
-};
-
-/***/ }),
-
-/***/ 3978:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const { encode, decode } = __nccwpck_require__(7901);
-
-module.exports = {
-  encode,
-  decode,
-};
-
-
-/***/ }),
-
 /***/ 8319:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -45893,9 +45696,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const ai_1 = __nccwpck_require__(7624);
 const openai_1 = __nccwpck_require__(5607);
 const azure_1 = __nccwpck_require__(8959);
-const models_1 = __nccwpck_require__(6060);
 const core_1 = __nccwpck_require__(2614);
-const gpt_3_encoder_1 = __nccwpck_require__(3978);
 const prompt_1 = __nccwpck_require__(9046);
 const apiKey = (0, core_1.getInput)('apikey', { required: true });
 const provider = (0, core_1.getInput)('provider', { required: true });
@@ -45943,23 +45744,11 @@ class AI {
         }
         return response.text;
     }
-    async translate(text, splitter = '\n\n') {
-        const maxToken = (models_1.modelTokens[this.model] || models_1.minimumTokens) / 2;
-        let translated = '';
-        let chunk = '';
+    async translate(text) {
         (0, core_1.info)(`${new Date().toLocaleString()} Start translating with ${this.model}...`);
-        const contentChunks = text.split(splitter);
-        for (let i = 0; i < contentChunks.length; i++) {
-            if ((0, gpt_3_encoder_1.encode)(chunk + contentChunks[i]).length > maxToken) {
-                const translatedContent = await this.generateTextRequest(chunk);
-                translated += translatedContent + splitter;
-                chunk = '';
-            }
-            chunk += contentChunks[i] + (i < contentChunks.length - 1 ? splitter : '');
-        }
-        translated += await this.generateTextRequest(chunk);
+        const response = await this.generateTextRequest(text);
         (0, core_1.info)('Translation completed!');
-        return translated;
+        return response;
     }
 }
 const translator = new AI(provider, apiKey, baseURL);
@@ -46199,49 +45988,6 @@ const authorizeUser = async () => {
     return user.permission === 'admin' || user.permission === 'write';
 };
 exports.authorizeUser = authorizeUser;
-
-
-/***/ }),
-
-/***/ 6060:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.modelTokens = exports.minimumTokens = void 0;
-// Output Token limits for each model
-exports.minimumTokens = 4096;
-/**
- * OpenAI
- * https://platform.openai.com/docs/models
- *
- * maxTokens = input + output https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/chatgpt?tabs=python-new#manage-conversations
- */
-const openAIModels = {
-    'gpt-3.5-turbo-0125': 16385 / 2,
-    'gpt-3.5-turbo': 16385 / 2,
-    'gpt-3.5-turbo-1106': 16385 / 2,
-    'gpt-3.5-turbo-instruct': 4096 / 2,
-    'gpt-3.5-turbo-16k': 16385 / 2,
-    'gpt-3.5-turbo-0613': 4096 / 2,
-    'gpt-3.5-turbo-16k-0613': 16385 / 2,
-    'gpt-4o': 128000 / 2,
-    'gpt-4-turbo': 128000 / 2,
-    'gpt-4-turbo-2024-04-09': 128000 / 2,
-    'gpt-4-turbo-preview': 128000 / 2,
-    'gpt-4-0125-preview': 128000 / 2,
-    'gpt-4-1106-preview': 128000 / 2,
-    'gpt-4-vision-preview': 128000 / 2,
-    'gpt-4-1106-vision-preview': 128000 / 2,
-    'gpt-4': 8192 / 2,
-    'gpt-4-0613': 8192 / 2,
-    'gpt-4-32k': 32768 / 2,
-    'gpt-4-32k-0613': 32768 / 2,
-};
-exports.modelTokens = {
-    ...openAIModels,
-};
 
 
 /***/ }),

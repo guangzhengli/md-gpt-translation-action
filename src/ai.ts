@@ -1,9 +1,7 @@
 import { CoreMessage, generateText } from 'ai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAzure } from '@ai-sdk/azure'
-import { minimumTokens, modelTokens } from './models'
 import { error, getInput, info } from '@actions/core'
-import { encode } from 'gpt-3-encoder'
 import { SYSTEM_PROMPT } from './prompt'
 
 const apiKey = getInput('apikey', { required: true })
@@ -68,32 +66,16 @@ class AI {
 
   public async translate(
     text: string,
-    splitter = '\n\n',
   ): Promise<string> {
-    const maxToken =
-      (modelTokens[this.model] || minimumTokens) / 2
-
-    let translated = ''
-    let chunk = ''
 
     info(
       `${new Date().toLocaleString()} Start translating with ${this.model}...`,
     )
-    const contentChunks = text.split(splitter)
 
-    for (let i = 0; i < contentChunks.length; i++) {
-      if (encode(chunk + contentChunks[i]).length > maxToken) {
-        const translatedContent = await this.generateTextRequest(chunk)
-        translated += translatedContent + splitter
-        chunk = ''
-      }
-      chunk += contentChunks[i] + (i < contentChunks.length - 1 ? splitter : '')
-    }
-
-    translated += await this.generateTextRequest(chunk)
+    const response = await this.generateTextRequest(text)
     info('Translation completed!')
 
-    return translated
+    return response
   }
 }
 
