@@ -45900,6 +45900,7 @@ const prompt_1 = __nccwpck_require__(9046);
 const apiKey = (0, core_1.getInput)('apikey', { required: true });
 const provider = (0, core_1.getInput)('provider', { required: true });
 const baseURL = (0, core_1.getInput)('baseURL');
+const resourceName = (0, core_1.getInput)('resourceName');
 class AI {
     provider;
     model;
@@ -45920,6 +45921,9 @@ class AI {
         if (baseURL) {
             baseOptions['baseURL'] = baseURL;
         }
+        if (providerName === 'azure') {
+            baseOptions['resourceName'] = resourceName;
+        }
         return initializer(baseOptions);
     }
     async generateTextRequest(text) {
@@ -45939,7 +45943,7 @@ class AI {
         }
         return response.text;
     }
-    async translate(text, targetFileExt, splitter = '\n\n') {
+    async translate(text, splitter = '\n\n') {
         const maxToken = (models_1.modelTokens[this.model] || models_1.minimumTokens) / 2;
         let translated = '';
         let chunk = '';
@@ -46292,13 +46296,11 @@ const utils_1 = __nccwpck_require__(8342);
 const git_1 = __nccwpck_require__(7366);
 const file_1 = __nccwpck_require__(9208);
 const promises_1 = __importDefault(__nccwpck_require__(3292));
-const path_1 = __importDefault(__nccwpck_require__(1017));
 const ai_1 = __importDefault(__nccwpck_require__(1931));
 const core_1 = __nccwpck_require__(2614);
 const saveTranslateFiles = async (inputFilePath, outputFilePath) => {
     const content = await promises_1.default.readFile(inputFilePath, 'utf-8');
-    const ext = path_1.default.extname(inputFilePath);
-    const translated = await ai_1.default.translate(content, ext);
+    const translated = await ai_1.default.translate(content);
     if (await (0, file_1.isFileExists)(outputFilePath)) {
         const fileContent = await promises_1.default.readFile(outputFilePath, 'utf-8');
         if (fileContent === translated) {

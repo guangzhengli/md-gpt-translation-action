@@ -3,7 +3,6 @@ import { generatePRBody } from './utils'
 import { gitCommitPush, gitCreateBranch, gitCreatePullRequest, gitPostComment, gitSetConfig } from './git'
 import { createFile, generateOutputFilePath, isFileExists } from './file'
 import fs from 'fs/promises'
-import path from 'path'
 import translator from './ai'
 import { info } from '@actions/core'
 
@@ -12,8 +11,7 @@ export const saveTranslateFiles = async (
   outputFilePath: string,
 ) => {
     const content = await fs.readFile(inputFilePath, 'utf-8')
-    const ext = path.extname(inputFilePath)
-    const translated = await translator.translate(content, ext)
+    const translated = await translator.translate(content)
 
     if (await isFileExists(outputFilePath)) {
       const fileContent = await fs.readFile(outputFilePath, 'utf-8')

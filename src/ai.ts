@@ -9,6 +9,7 @@ import { SYSTEM_PROMPT } from './prompt'
 const apiKey = getInput('apikey', { required: true })
 const provider = getInput('provider', { required: true }) as 'openai' | 'azure'
 const baseURL = getInput('baseURL')
+const resourceName = getInput('resourceName')
 
 class AI {
   private readonly provider: any
@@ -38,6 +39,9 @@ class AI {
     if (baseURL) {
       baseOptions['baseURL'] = baseURL
     }
+    if (providerName === 'azure') {
+      baseOptions['resourceName'] = resourceName
+    }
     return initializer(baseOptions)
   }
 
@@ -64,7 +68,6 @@ class AI {
 
   public async translate(
     text: string,
-    targetFileExt: string,
     splitter = '\n\n',
   ): Promise<string> {
     const maxToken =
