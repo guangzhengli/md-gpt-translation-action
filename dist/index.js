@@ -45990,7 +45990,7 @@ const commandValidator = async (match) => {
     if (!match) {
         await (0, utils_1.postError)(`Invalid command`);
     }
-    const [inputFilePath, outputFilePath] = match;
+    const [_, inputFilePath, outputFilePath] = match;
     if (!isValidFileExt(inputFilePath) || !isValidFileExt(outputFilePath)) {
         await (0, utils_1.postError)(`Unsupported file extension. Please use one of the following formats`);
     }
