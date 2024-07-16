@@ -1,24 +1,22 @@
-import { glob } from 'glob'
 import { context } from '@actions/github'
 import { generatePRBody } from './utils'
-import { gitCheckout, gitCommitPush, gitCreateBranch, gitCreatePullRequest, gitPostComment, gitSetConfig } from './git'
-import { createFile, generateOutputFilePaths, isFileExists } from './file'
+import { gitCommitPush, gitCreateBranch, gitCreatePullRequest, gitPostComment, gitSetConfig } from './git'
+import { createFile, generateOutputFilePath, isFileExists } from './file'
 import fs from 'fs/promises'
 import path from 'path'
 import translator from './ai'
 import { info } from '@actions/core'
 
 export const saveTranslateFiles = async (
-  inputFilePaths: string[],
-  outputFilePaths: string[],
+  inputFilePath: string,
+  outputFilePath: string,
 ) => {
-  const processFiles = inputFilePaths.map(async (inputFile, i) => {
-    const content = await fs.readFile(inputFile, 'utf-8')
-    const ext = path.extname(inputFile)
+    const content = await fs.readFile(inputFilePath, 'utf-8')
+    const ext = path.extname(inputFilePath)
     const translated = await translator.translate(content, ext)
 
-    if (await isFileExists(outputFilePaths[i])) {
-      const fileContent = await fs.readFile(outputFilePaths[i], 'utf-8')
+    if (await isFileExists(outputFilePath)) {
+      const fileContent = await fs.readFile(outputFilePath, 'utf-8')
       if (fileContent === translated) {
         info(
           '⛔ The result of translation was same as the existed output file.',
@@ -27,11 +25,8 @@ export const saveTranslateFiles = async (
       }
     }
 
-    info(`Create Translated File ${outputFilePaths[i]}`)
-    await createFile(translated, outputFilePaths[i])
-  })
-
-  await Promise.all(processFiles)
+    info(`Create Translated File ${outputFilePath}`)
+    await createFile(translated, outputFilePath)
 }
 
 export const translateByCommand = async (
@@ -41,24 +36,19 @@ export const translateByCommand = async (
   await gitSetConfig()
   const branch = await gitCreateBranch()
 
-  const inputFilePaths = await glob(inputFilePath)
-  if (inputFilePaths.length === 0) {
-    throw new Error('No input files found.')
-  }
-
-  const outputFilePaths = generateOutputFilePaths(
-    inputFilePaths,
+  const outputFilePaths = generateOutputFilePath(
+    inputFilePath,
     outputFilePath,
   )
 
-  await saveTranslateFiles(inputFilePaths, outputFilePaths)
+  await saveTranslateFiles(inputFilePath, outputFilePaths)
 
   await gitCommitPush(branch, outputFilePaths)
 
   const issueNumber = context.issue.number
   const title = '🌐 Add LLM Translations'
   const body = generatePRBody(
-    inputFilePaths,
+    inputFilePath,
     outputFilePaths,
     issueNumber,
   )

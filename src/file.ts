@@ -62,10 +62,10 @@ const replaceWildcardFilename = (
   return mergedSegments.reverse().join('.')
 }
 
-export const generateOutputFilePaths = (
-  inputFilePaths: string[],
+export const generateOutputFilePath = (
+  inputFilePath: string,
   outputFilePath: string,
-): string[] => {
+): string => {
   const outputSegments = path.normalize(outputFilePath).split(path.sep)
   const outputFileName = outputSegments.pop()!
 
@@ -99,7 +99,5 @@ export const generateOutputFilePaths = (
     return path.join(...resolvedPathSegments)
   }
 
-  return inputFilePaths.flatMap((inputFilePath) =>
-    generateOutputPath(inputFilePath),
-  )
+  return generateOutputPath(inputFilePath);
 }
